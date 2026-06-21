@@ -226,7 +226,9 @@
     {
       "name":"Services Cloud",
       "keywords":[
-        "Azure"        
+        "Azure",
+        "AWS",
+        "Hetzner"        
       ]
     }
   ],
