@@ -3,39 +3,6 @@ import { getCVData } from "@utils/cv";
 
 const cvData = await getCVData();
 const { certificates } = cvData;
-
-// Mapeo de certificados usando rutas de PDFs con protección
-const certificateUrls = {
-  'Certified Professional: Kaspersky Endpoint Security Cloud (040.16)': '/portafolio/certificate/Certified-Professional-Kaspersky-Endpoint-Security-Cloud-040.16.pdf',
-  'Certified Professional: Kaspersky EDR Optimum Presales (P24.2)': '/portafolio/certificate/Certified-Professional-Kaspersky-EDR-Optimum-Presales-P24.2.pdf',
-  'Certified Professional: Kaspersky Next EDR Foundations (046.12.5)': '/portafolio/certificate/Certified-Professional-Kaspersky-Next-EDR-Foundations-046.12.5.pdf',
-  'Certified Professional Kaspersky Next Presales (P19.01)': '/portafolio/certificate/Certified-Professional-Kaspersky-Next-Presales-P19.01.pdf',
-  'Certified Professional Kaspersky Next XDR Expert (048.1.1)': '/portafolio/certificate/Certified-Professional-Kaspersky-Next-XDR-Expert-048.1.1.pdf'
-};
-
-// Mapeo de información de certificados
-const certificateInfo = {
-  'Certified Professional: Kaspersky Endpoint Security Cloud (040.16)': {
-    issuer: 'Kaspersky',
-    date: '2024-02-15'
-  },
-  'Certified Professional: Kaspersky EDR Optimum Presales (P24.2)': {
-    issuer: 'Kaspersky',
-    date: '2024-03-15'
-  },
-  'Certified Professional: Kaspersky Next EDR Foundations (046.12.5)': {
-    issuer: 'Scrum.org',
-    date: '2021-08-22'
-  },
-  'Certified Professional Kaspersky Next Presales (P19.01)': {
-    issuer: 'Kaspersky',
-    date: '2024-04-15'
-  },
-  'Certified Professional Kaspersky Next XDR Expert (048.1.1)': {
-    issuer: 'Kaspersky',
-    date: '2024-05-15'
-  }
-};
 ---
 
 <div id="certificate-modal" class="modal" role="dialog" aria-modal="true">
@@ -81,69 +48,47 @@ const certificateInfo = {
   </div>
 </div>
 
-<script define:vars={{ certificateUrls, certificateInfo }}>
-  // Variables globales
+<script define:vars={{ certificates }}>
   let currentCertificateIndex = 0;
-  let certificatesList = [];
 
-  // Función para actualizar el contenido del modal
-  function updateCertificateModal(certificateName) {
+  function updateCertificateModal(index) {
+    const certificate = certificates[index];
     const modalTitle = document.getElementById('modal-certificate-title');
     const modalName = document.getElementById('modal-certificate-name');
     const modalIssuer = document.getElementById('modal-certificate-issuer');
     const modalDate = document.getElementById('modal-certificate-date');
     const iframe = document.getElementById('certificate-iframe');
     
-    if (!modalTitle || !modalName || !modalIssuer || !modalDate || !iframe) {
+    if (!certificate || !modalTitle || !modalName || !modalIssuer || !modalDate || !iframe) {
       console.error('Elementos del modal no encontrados');
       return false;
     }
     
-    // Actualizar información del certificado
     modalTitle.textContent = 'Certificado';
-    modalName.textContent = certificateName;
-    
-    const info = certificateInfo[certificateName];
-    if (info) {
-      modalIssuer.textContent = `Emitido por: ${info.issuer}`;
-      const date = new Date(info.date);
-      modalDate.textContent = `Fecha: ${date.toLocaleDateString('es-ES')}`;
-    } else {
-      modalIssuer.textContent = `Emitido por: ${certificateName.includes('Kaspersky') ? 'Kaspersky' : 'Scrum.org'}`;
-      modalDate.textContent = `Fecha: ${new Date().toLocaleDateString('es-ES')}`;
-    }
-    
-    // Configurar el iframe
-    const certificatePath = certificateUrls[certificateName];
-    if (certificatePath) {
-      iframe.src = certificatePath;
-      return true;
-    } else {
-      console.error('Ruta del certificado no encontrada:', certificateName);
-      return false;
-    }
+    modalName.textContent = certificate.name;
+    modalIssuer.textContent = `Emitido por: ${certificate.issuer}`;
+    const date = new Date(certificate.date);
+    modalDate.textContent = `Fecha: ${date.toLocaleDateString('es-ES')}`;
+    iframe.src = encodeURI(certificate.url);
+    return true;
   }
 
-  // Función para abrir el modal
-  function openCertificateModal(certificateName, certificateUrl) {
+  function openCertificateModal(certificateName) {
     const modal = document.getElementById('certificate-modal');
     if (!modal) {
       console.error('Modal no encontrado');
       return;
     }
     
-    // Encontrar el índice del certificado actual
-    currentCertificateIndex = certificatesList.findIndex(cert => cert.name === certificateName);
+    currentCertificateIndex = certificates.findIndex((cert) => cert.name === certificateName);
     if (currentCertificateIndex === -1) currentCertificateIndex = 0;
     
-    // Actualizar el modal
-    const success = updateCertificateModal(certificateName);
+    const success = updateCertificateModal(currentCertificateIndex);
     if (!success) {
       console.error('No se pudo actualizar el modal');
       return;
     }
     
-    // Mostrar el modal
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
   }
@@ -164,18 +109,15 @@ const certificateInfo = {
 
   // Función para navegar entre certificados
   function navigateCertificates(direction) {
-    if (certificatesList.length === 0) return;
+    if (certificates.length === 0) return;
     
     if (direction === 'next') {
-      currentCertificateIndex = (currentCertificateIndex + 1) % certificatesList.length;
+      currentCertificateIndex = (currentCertificateIndex + 1) % certificates.length;
     } else {
-      currentCertificateIndex = (currentCertificateIndex - 1 + certificatesList.length) % certificatesList.length;
+      currentCertificateIndex = (currentCertificateIndex - 1 + certificates.length) % certificates.length;
     }
     
-    const certificate = certificatesList[currentCertificateIndex];
-    if (certificate) {
-      updateCertificateModal(certificate.name);
-    }
+    updateCertificateModal(currentCertificateIndex);
   }
 
   // Inicializar el modal
@@ -192,25 +134,14 @@ const certificateInfo = {
     
     if (!closeBtn || !modalContent) return;
 
-    // Obtener lista de certificados
     const certificateCards = Array.from(document.querySelectorAll('.certificate-card'));
-    certificatesList = certificateCards.map(card => {
-      const name = card.querySelector('h3')?.textContent?.trim() || '';
-      return { name, element: card };
-    });
-    
 
-
-    // Agregar event listeners para las tarjetas de certificados
     certificateCards.forEach(card => {
       card.addEventListener('click', () => {
-        // Obtener el nombre del certificado desde el h3 dentro de la tarjeta
-        const certificateNameElement = card.querySelector('h3');
-        const certificateName = certificateNameElement ? certificateNameElement.textContent?.trim() : '';
-        const certificateUrl = card.getAttribute('data-certificate-url');
+        const certificateName = card.querySelector('h3')?.textContent?.trim() || '';
         
         if (certificateName && typeof window.openCertificateModal === 'function') {
-          window.openCertificateModal(certificateName, certificateUrl);
+          window.openCertificateModal(certificateName);
         } else {
           console.error('Función openCertificateModal no disponible o nombre de certificado no encontrado');
         }
