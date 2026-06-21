@@ -167,7 +167,19 @@
       "name":"Certified Professional Kaspersky Next XDR Expert (048.1.1)",
       "date":"2024-05-15",
       "issuer":"Kaspersky",
-      "url":"https://cloud.kaspersky.com/?landing=true"
+      "url":"/portafolio/certificate/Certified-Professional-Kaspersky-Next-XDR-Expert-048.1.1.pdf"
+    },
+    {
+      "name":"Fortinet Certified Fundamentals in Cybersecurity",
+      "date":"2026-06-10",
+      "issuer":"Fortinet",
+      "url":"/portafolio/certificate/Fortinet Certified Fundamentals in Cybersecurity.pdf"
+    },
+    {
+      "name":"SC-900: Microsoft Security, Compliance, and Identity Fundamentals",
+      "date":"2026-06-01",
+      "issuer":"Microsoft",
+      "url":"/portafolio/certificate/SC-900 MICROSOFT SECURITY, COMPLIANCE.pdf"
     }
   ],
   "acreditation":[
